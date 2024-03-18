@@ -1,9 +1,14 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import React, { useState } from 'react'
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import OAuth from "../components/OAuth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { db } from "../firebase"
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 function SignUp() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,6 +25,33 @@ function SignUp() {
     }))
   }
 
+  async function onSubmit(e) {
+    e.preventDefault();
+
+    try {
+      const auth = getAuth();
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      updateProfile(auth.currentUser, {
+        displayName: name
+      });
+
+      const user = userCredential.user;
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password; //Don't want to save password in database
+      formDataCopy.timestamp = serverTimestamp(); //adding timestamp of the user when he gets registered
+
+      // Now we can save this data to the Firestore database using setDoc() method of firebase which returns a promise too
+
+      await setDoc(doc(db, "users", user.uid), formDataCopy);
+      toast.success("Sign up successful");
+      navigate('/');
+
+    } catch (error) {
+      toast.error("Something went wrong with the registration");
+    }
+  }
+
   return (
     <section>
       <h1 className='text-3xl text-center mt-6 font-bold'>Sign Up</h1>
@@ -31,7 +63,7 @@ function SignUp() {
           />
         </div>
         <div className='w-full md:w-[67%] lg:w-[40%] lg:ml-20'>
-          <form>
+          <form onSubmit={onSubmit}>
             <input className='w-full px-4 py-2 mb-6 text-xl text-gray-700 bg-white rounded-md border-gray-300 transition ease-in-out' type="text" id="name" value={name} placeholder='Full Name' onChange={onChange} />
 
             <input className='w-full px-4 py-2 text-xl text-gray-700 bg-white rounded-md border-gray-300 transition ease-in-out' type="email" id="email" value={email} placeholder='Email Address' onChange={onChange} />
