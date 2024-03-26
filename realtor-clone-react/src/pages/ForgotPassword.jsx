@@ -1,12 +1,31 @@
 import { Link } from "react-router-dom"
 import React, { useState } from 'react'
 import OAuth from "../components/OAuth";
+import { sendPasswordResetEmail, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
 
   function onChange(e) {
     setEmail(e.target.value);
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+
+    try {
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Email is sent successfully");
+    } catch (error) {
+      console.log("Error sending password reset email:", error);
+      toast.error("Could not reset password");
+      // if (error.code === "auth/user-not-found") {
+      //   toast.error("Email address not found");
+      // } else {
+      // }
+    }
   }
 
   return (
@@ -20,7 +39,7 @@ function ForgotPassword() {
           />
         </div>
         <div className='w-full md:w-[67%] lg:w-[40%] lg:ml-20'>
-          <form>
+          <form onSubmit={onSubmit}>
             <input className='w-full px-4 py-2 mb-6 text-xl text-gray-700 bg-white rounded-md border-gray-300 transition ease-in-out' type="email" id="email" value={email} placeholder='Email Address' onChange={onChange} />
 
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">

@@ -26,8 +26,9 @@ function SignIn() {
     e.preventDefault();
     try {
       const auth = getAuth();
+      console.log(auth);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       if (userCredential.user) {
         navigate('/');
       }
@@ -53,9 +54,9 @@ function SignIn() {
             <div className='relative left-50 mt-2 mb-6'>
               <input className='w-full px-4 py-2 mt-4 text-xl text-gray-700 bg-white rounded-md border-gray-300 transition ease-in-out' type={showPassword ? "text" : "password"} id="password" value={password} placeholder='Password' onChange={onChange} />
 
-              {showPassword ? <AiOutlineEyeInvisible className='absolute right-3 top-7 text-2xl cursor-pointer' onClick={() => setShowPassword((prevState) => !prevState)} 
+              {showPassword ? <AiOutlineEyeInvisible className='absolute right-3 top-7 text-2xl cursor-pointer' onClick={() => setShowPassword((prevState) => !prevState)}
               /> :
-                <AiOutlineEye className='absolute right-3 top-7 text-2xl cursor-pointer' onClick={() => setShowPassword((prevState) => !prevState)} /> }
+                <AiOutlineEye className='absolute right-3 top-7 text-2xl cursor-pointer' onClick={() => setShowPassword((prevState) => !prevState)} />}
             </div>
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg">
               <p className="mb-6">Don't have an account?
